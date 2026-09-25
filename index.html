@@ -905,7 +905,7 @@
         hp = '+' + hp;
       }
 
-      let teksPesanan = `*PESANAN PESAN ANTAR - SEBLAK TEH MARNI* 🛵\n\n`;
+      let teksPesanan = `*PESANAN DELIVERY* 🛵\n\n`;
       teksPesanan += `👤 *Nama:* ${nama}\n`;
       teksPesanan += `📞 *No. HP/WA:* ${hp}\n`;
       teksPesanan += `📍 *Alamat Tujuan:* ${alamat}\n`;
@@ -914,7 +914,6 @@
         teksPesanan += `🗺️ *Google Maps:* ${gmaps}\n`;
       }
       
-      teksPesanan += `📷 *Patokan Rumah:* [Pelanggan melampirkan foto patokan rumah di chat ini]\n`;
       teksPesanan += `💳 *Pembayaran:* ${metodeText}\n`;
       
       if (catatanPenerima.trim() !== "") {
