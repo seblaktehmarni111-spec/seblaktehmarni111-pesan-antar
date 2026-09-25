@@ -49,7 +49,7 @@
 
     .form-group { margin-bottom: 12px; padding: 0 15px; }
     .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: bold; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #fff; }
     .form-group textarea { resize: vertical; min-height: 60px; }
     .error-msg { font-size: 11px; color: #e91e63; margin-top: 3px; display: none; }
 
@@ -180,9 +180,26 @@
       <div id="error-hp" class="error-msg">Format nomor WhatsApp tidak valid (Gunakan format Indonesia +62 atau 08, min 10 digit).</div>
     </div>
 
+    <!-- TAMBAHAN PILIHAN WILAYAH ANTAR (WAJIB DIISI) -->
     <div class="form-group">
-      <label>Alamat Lengkap Tujuan*</label>
-      <textarea id="input-alamat" placeholder="Nama jalan, nomor rumah, RT/RW..."></textarea>
+      <label>Pilih Wilayah Antar (Wajib Diisi)*</label>
+      <select id="input-wilayah" onchange="validasiTombolBayar()">
+        <option value="">-- Pilih Wilayah Tujuan --</option>
+        <option value="Sumurlaban">Sumurlaban</option>
+        <option value="Tangkolo">Tangkolo</option>
+        <option value="Ardai">Ardai</option>
+        <option value="Rawafulo">Rawafulo</option>
+        <option value="Cibadug">Cibadug</option>
+        <option value="Pengakaran">Pengakaran</option>
+        <option value="Kosambi">Kosambi</option>
+        <option value="Pilang">Pilang</option>
+        <option value="Jamantri 3">Jamantri 3</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Alamat Lengkap / Patokan Rumah*</label>
+      <textarea id="input-alamat" placeholder="Nama jalan, RT/RW..."></textarea>
     </div>
 
     <div class="form-group">
@@ -758,7 +775,6 @@
       validasiTombolBayar();
     }
 
-    // Fungsi Validasi Format Nomor HP Indonesia (+62 / 08)
     function cekNomorHpValid(noHp) {
       const cleaned = noHp.trim().replace(/[\s-]/g, '');
       const regexId = /^(\+62|62|0)8[1-9][0-9]{7,10}$/;
@@ -771,14 +787,17 @@
       
       if (hpVal.trim() === "") {
         errorEl.style.display = 'none';
+        validasiTombolBayar();
         return false;
       }
 
       if (!cekNomorHpValid(hpVal)) {
         errorEl.style.display = 'block';
+        validasiTombolBayar();
         return false;
       } else {
         errorEl.style.display = 'none';
+        validasiTombolBayar();
         return true;
       }
     }
@@ -787,19 +806,22 @@
       const btnProses = document.getElementById('btn-proses');
       const checkSyarat = document.getElementById('check-syarat').checked;
       const hpVal = document.getElementById('input-hp').value;
+      const wilayahVal = document.getElementById('input-wilayah').value;
       
       const isHpValid = cekNomorHpValid(hpVal);
+      const isWilayahValid = wilayahVal !== "";
       
       if (metodePembayaranPilihan === 'online') {
-        btnProses.disabled = !(checkSyarat && isHpValid);
+        btnProses.disabled = !(checkSyarat && isHpValid && isWilayahValid);
       } else {
-        btnProses.disabled = !isHpValid;
+        btnProses.disabled = !(isHpValid && isWilayahValid);
       }
     }
 
     function prosesSesuaiMetode() {
       const nama = document.getElementById('input-nama').value.trim();
       const hp = document.getElementById('input-hp').value.trim();
+      const wilayah = document.getElementById('input-wilayah').value;
       const alamat = document.getElementById('input-alamat').value.trim();
 
       if (!nama) {
@@ -812,6 +834,12 @@
         playErrorSound();
         alert("Nomor WhatsApp / HP tidak valid! Pastikan menggunakan format nomor Indonesia yang benar (contoh: +628... atau 08...).");
         document.getElementById('input-hp').focus();
+        return;
+      }
+      if (!wilayah) {
+        playErrorSound();
+        alert("Harap pilih Wilayah Antar terlebih dahulu!");
+        document.getElementById('input-wilayah').focus();
         return;
       }
       if (!alamat) {
@@ -894,6 +922,7 @@
       
       const nama = document.getElementById('input-nama').value;
       let hp = document.getElementById('input-hp').value.trim();
+      const wilayah = document.getElementById('input-wilayah').value;
       const alamat = document.getElementById('input-alamat').value;
       const gmaps = document.getElementById('input-gmaps').value.trim();
       const catatanPenerima = document.getElementById('input-catatan').value;
@@ -908,7 +937,8 @@
       let teksPesanan = `*PESANAN DELIVERY* 🛵\n\n`;
       teksPesanan += `👤 *Nama:* ${nama}\n`;
       teksPesanan += `📞 *No. HP/WA:* ${hp}\n`;
-      teksPesanan += `📍 *Alamat Tujuan:* ${alamat}\n`;
+      teksPesanan += `📍 *Wilayah Antar:* ${wilayah}\n`;
+      teksPesanan += `🏠 *Alamat Tujuan:* ${alamat}\n`;
       
       if (gmaps !== "") {
         teksPesanan += `🗺️ *Google Maps:* ${gmaps}\n`;
@@ -917,7 +947,7 @@
       teksPesanan += `💳 *Pembayaran:* ${metodeText}\n`;
       
       if (catatanPenerima.trim() !== "") {
-        teksPesanan += `📝 *Catatan:* ${cataturPenerima || catatanPenerima}\n`;
+        teksPesanan += `📝 *Catatan:* ${catatanPenerima}\n`;
       }
       
       teksPesanan += `\n*--- DETAIL PESANAN ---*\n`;
