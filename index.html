@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seblak Teh Marni | Pesan Antar Online</title>
+  <title>Seblak Teh Marni | Pemesanan Online</title>
   <style>
     :root { --primary: #e91e63; --primary-dark: #c2185b; --bg: #f8f9fa; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +31,7 @@
     .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     
     .card-item { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-    .card-item img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; background: #ffe4e6; margin-bottom: 8px; cursor: pointer; }
+    .card-item img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; background: #e0f2fe; margin-bottom: 8px; cursor: pointer; }
     .item-title { font-size: 13px; font-weight: bold; margin: 0 0 2px 0; color: #111; text-transform: uppercase; cursor: pointer; }
     .item-desc { font-size: 11px; color: #777; margin-bottom: 6px; min-height: 26px; }
     .item-price { font-size: 13px; font-weight: bold; color: #000; margin-bottom: 8px; }
@@ -51,6 +51,7 @@
     .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: bold; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 14px; }
     .form-group textarea { resize: vertical; min-height: 60px; }
+    .error-msg { font-size: 11px; color: #e91e63; margin-top: 3px; display: none; }
 
     .payment-tabs { display: flex; gap: 10px; margin: 10px 15px; }
     .tab-btn { flex: 1; padding: 12px 8px; border: 1px solid #e0e0e0; border-radius: 10px; background: #fff; text-align: center; font-weight: bold; font-size: 13px; cursor: pointer; color: #666; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -121,8 +122,8 @@
         <span id="badge-toko" class="badge-status badge-buka">BUKA</span>
       </div>
       <div class="store-status">
-        <span id="text-jam-aktif">Layanan Pesan Antar (10.00-20.30 WIB)</span>
-        <div style="font-size: 12px; color: #888;" id="text-tanggal-hari-ini">Jumat, 18 September 2026</div>
+        <span>Pesan antar jam 11.00-15.00 Sore.</span>
+        <div style="font-size: 12px; color: #888;" id="text-tanggal-hari-ini"></div>
       </div>
     </div>
 
@@ -149,18 +150,18 @@
     <div class="rincian-box">
       <b>Rincian Pembayaran</b>
       <div class="row-flex"><span>Subtotal</span><span id="subtotal-val">Rp 0</span></div>
-      <div class="row-flex"><span>Ongkos Kirim</span><span>Menyesuaikan / Chat</span></div>
+      <div class="row-flex"><span>Biaya Layanan</span><span>Rp 0</span></div>
       <hr style="margin: 8px 0; border: none; border-top: 1px dashed #ddd;">
-      <div class="row-flex" style="font-weight:bold;"><span>Total Makanan</span><span id="total-val" style="color:var(--primary)">Rp 0</span></div>
+      <div class="row-flex" style="font-weight:bold;"><span>Total</span><span id="total-val" style="color:var(--primary)">Rp 0</span></div>
     </div>
 
     <div class="bottom-bar">
       <div>Total: <b id="total-hal2" style="color:var(--primary)">Rp 0</b></div>
-      <button class="btn-main" onclick="pindahHalaman('hal-pembayaran')">Lanjut Pengiriman</button>
+      <button class="btn-main" onclick="pindahHalaman('hal-pembayaran')">Lanjut Pembayaran</button>
     </div>
   </div>
 
-  <!-- HALAMAN 3: DATA PENGIRIMAN & PEMBAYARAN -->
+  <!-- HALAMAN 3: PEMBAYARAN & INFORMASI PEMESAN -->
   <div id="hal-pembayaran" class="page">
     <div class="header">
       <button class="back-btn" onclick="pindahHalaman('hal-pesanan')">←</button>
@@ -175,21 +176,18 @@
 
     <div class="form-group">
       <label>Nomor WhatsApp / HP*</label>
-      <input type="tel" id="input-wa" placeholder="Contoh: 08123456789">
+      <input type="tel" id="input-hp" placeholder="Contoh: 08123456789" oninput="validasiFormatHp()">
+      <div id="error-hp" class="error-msg">Format nomor WhatsApp tidak valid (Gunakan format Indonesia +62 atau 08, min 10 digit).</div>
     </div>
 
     <div class="form-group">
       <label>Alamat Lengkap Tujuan*</label>
-      <textarea id="input-alamat" placeholder="Nama jalan, nomor rumah, RT/RW, Patokan terdekat..."></textarea>
+      <textarea id="input-alamat" placeholder="Nama jalan, nomor rumah, RT/RW..."></textarea>
     </div>
 
     <div class="form-group">
-      <label>Foto Patokan / Depan Rumah (Opsional)</label>
-      <input type="file" id="input-foto-rumah" accept="image/*" style="padding: 6px; font-size: 12px;" onchange="previewFotoRumah(event)">
-      <div id="preview-container" style="margin-top: 8px; display: none;">
-        <img id="img-preview" src="" alt="Preview Patokan" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
-        <br><button type="button" onclick="hapusFotoRumah()" style="background: #e91e63; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-top: 5px; cursor: pointer;">Hapus Foto</button>
-      </div>
+      <label>Link Google Maps / Titik Lokasi (Opsional)</label>
+      <input type="url" id="input-gmaps" placeholder="Tempel link Google Maps (Share Location) di sini...">
     </div>
 
     <div class="form-group">
@@ -197,7 +195,7 @@
       <textarea id="input-catatan" placeholder="Contoh: Tolong jangan terlalu pedas ya..."></textarea>
     </div>
 
-    <h4 style="margin: 15px 15px 8px 15px;">Metode Pembayaran</h4>
+    <h4 style="margin: 15px 15px 8px 15px; font-size: 14px;">Metode Pembayaran</h4>
     
     <div class="payment-tabs">
       <div id="tab-online" class="tab-btn active-tab" onclick="pilihTab('online')">💳 Pembayaran QRIS</div>
@@ -232,7 +230,7 @@
       <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Selesaikan pembayaran dalam waktu</p>
       <div id="timer" class="timer-text">10:00</div>
       
-      <img id="img-qris-src" src="qris.jpg" alt="QRIS Seblak Teh Marni">
+      <img id="img-qris-src" src="qris-1.jpg" alt="QRIS Seblak Teh Marni">
 
       <div style="margin-top: 10px; font-size: 14px; color: #444;">
         <b>SEBLAK TEH MARNI</b><br>
@@ -245,8 +243,8 @@
       </div>
 
       <div class="action-qris">
-        <button class="btn-cek" onclick="kirimKeWhatsApp('BAYAR QRIS')">Kirim Bukti & Pesan</button>
-        <a id="btn-download-link" href="qris.jpg" download="QRIS-SeblakTehMarni.jpg" target="_blank" class="btn-download" title="Unduh QRIS">📥</a>
+        <button class="btn-cek" onclick="kirimKeWhatsApp('BAYAR QRIS')">Kirim Bukti & Cek Status</button>
+        <a id="btn-download-link" href="qris-1.jpg" download="QRIS-SeblakTehMarni.jpg" target="_blank" class="btn-download" title="Unduh QRIS">📥</a>
       </div>
 
       <div class="section-cara-bayar">
@@ -261,7 +259,7 @@
             <li class="step-item"><span class="step-icon">📸</span><div><b>1. Screenshot / Unduh kode QRIS</b></div></li>
             <li class="step-item"><span class="step-icon">🏦</span><div><b>2. Buka m-banking / e-wallet</b> Anda</div></li>
             <li class="step-item"><span class="step-icon">🖼️</span><div><b>3. Unggah gambar screenshot</b> QRIS untuk membayar</div></li>
-            <li class="step-item"><span class="step-icon">✅</span><div><b>4. Setelah transfer, kirimkan foto bukti pembayaran ke WhatsApp</b> melalui tombol di atas.</div></li>
+            <li class="step-item"><span class="step-icon">✅</span><div><b>4. Setelah berhasil transfer, mohon kirimkan foto bukti pembayaran ke WhatsApp kasir</b> melalui tombol di atas.</div></li>
           </ul>
         </div>
 
@@ -269,7 +267,7 @@
           <ul class="step-list">
             <li class="step-item"><span class="step-icon">📱</span><div><b>1. Buka aplikasi m-banking / e-wallet</b> pada ponsel lain</div></li>
             <li class="step-item"><span class="step-icon">📷</span><div><b>2. Pilih Scan QRIS</b> lalu arahkan kamera ke layar ini</div></li>
-            <li class="step-item"><span class="step-icon">✅</span><div><b>3. Periksa nominal</b>, selesaikan pembayaran, lalu <b>kirimkan bukti pembayaran ke WhatsApp</b> melalui tombol di atas.</div></li>
+            <li class="step-item"><span class="step-icon">✅</span><div><b>3. Periksa nominal</b>, selesaikan pembayaran, lalu <b>kirimkan foto bukti pembayaran ke WhatsApp kasir</b> melalui tombol di atas.</div></li>
           </ul>
         </div>
       </div>
@@ -327,16 +325,16 @@
   <!-- MODAL KONFIRMASI BAYAR COD -->
   <div id="modal-kasir" class="modal-overlay">
     <div class="modal-content-general">
-      <h3 style="margin: 0 0 15px 0; font-size: 16px;">Kirim pesanan pesan antar ke WhatsApp?</h3>
+      <h3 style="margin: 0 0 15px 0; font-size: 16px;">Kirim pesanan ke WhatsApp sekarang?</h3>
       <div class="modal-btn-group">
         <button class="btn-modal-cek" onclick="tutupModalKasir()">Cek Lagi</button>
-        <button class="btn-modal-bayar" onclick="lanjutKeWhatsappKasir()">Kirim Sekarang</button>
+        <button class="btn-modal-bayar" onclick="lanjutKeWhatsappKasir()">Pesan Sekarang</button>
       </div>
     </div>
   </div>
 
   <script>
-    const NOMOR_WA_KASIR = "6283136661801"; // Ganti dengan nomor WhatsApp kamu
+    const NOMOR_WA_KASIR = "6283136661801";
 
     const MENU = [
       {
@@ -364,55 +362,61 @@
         options: ["KUKUS", "GORENG", "MENTAH"]
       },
       {
-        id: 5, cat: "🥟 DIMSUM", name: "DIMSUM IKAN", desc: "Daging ikan pilihan",
+        id: 6, cat: "🥟 DIMSUM", name: "DIMSUM IKAN", desc: "Daging ikan pilihan",
         price: 12000, emoji: "🥟",
         img: "dimsum-ikan.jpg",
         options: ["KUKUS", "GORENG", "MENTAH"]
       },
       {
-        id: 6, cat: "🥟 DIMSUM", name: "DIMSUM MENTAI", desc: "Creamy",
+        id: 5, cat: "🥟 DIMSUM", name: "DIMSUM MENTAI", desc: "Creamy",
         price: 12000, emoji: "🥟",
         img: "dimsum-mentai.jpg",
         options: ["ORIGINAL", "EXTRA SAUS MENTAI"]
       },
       {
-        id: 7, cat: "🍟 SNACK", name: "MIX KENTANG", desc: "Kentang mix favorit",
+        id: 13, cat: "🍟 SNACK", name: "MIX KENTANG", desc: "Kentang mix favorit",
         price: 8000, emoji: "🍟",
         img: "kentang-mix.jpg",
         options: ["BUMBU BALADO", "BUMBU KEJU", "ORIGINAL ASIN"]
       },
       {
-        id: 8, cat: "🍟 SNACK", name: "FULL KENTANG", desc: "Kentang crispy",
+        id: 14, cat: "🍟 SNACK", name: "FULL KENTANG", desc: "Kentang crispy",
         price: 7000, emoji: "🍟",
         img: "full-kentang.jpg",
         options: ["BUMBU BALADO", "BUMBU KEJU", "ORIGINAL ASIN"]
       },
       {
-        id: 9, cat: "🥤 MINUMAN", name: "ES TEH - JASJUS", desc: "Segar & nikmat",
+        id: 7, cat: "🥤 MINUMAN", name: "ES TEH - JASJUS", desc: "Segar & nikmat",
         price: 3000, emoji: "🥤",
         img: "es-teh-dan-jasjus.jpg",
         options: ["TEH GULA BATU", "TEH MADU", "TEH APEL", "TEH LEMON", "TEH MELATI", "KELAPA MUDA", "JERUK", "JERUK PERAS", "MELON", "ANGGUR", "CINCAU", "STROWBERY", "JERUK NIPIS", "LEMON SIRSAK", "LECI", "MANGGA"]
       },
       {
-        id: 10, cat: "🥤 MINUMAN", name: "POP ICE", desc: "Segar beraneka rasa",
+        id: 8, cat: "🥤 MINUMAN", name: "POP ICE", desc: "Segar beraneka rasa",
         price: 4000, emoji: "🥤",
         img: "pop-es.jpg",
         options: ["CAPUCINO", "MANGGO", "COKLAT", "ALPUKAT", "STROWBERY", "MELON", "ANGGUR", "YOGURT", "VANILA BLU"]
       },
       {
-        id: 11, cat: "🥤 MINUMAN", name: "ES FAVORIT", desc: "Minuman kekinian favorit",
+        id: 9, cat: "🥤 MINUMAN", name: "ES FAVORIT", desc: "Minuman kekinian favorit",
         price: 5000, emoji: "🥤",
         img: "es-paporit.jpg",
         options: ["TEH TARIK", "CHOCOLATOS COKLAT", "GODAY", "BONTEH", "CHAMPION", "MACCA", "MAX TEA", "MILO", "DRING BEBENG"]
       },
       {
-        id: 12, cat: "🥤 MINUMAN", name: "AIR MINERAL", desc: "Botol 600ml",
+        id: 10, cat: "🥤 MINUMAN", name: "AIR MINERAL 4000", desc: "Botol 600ml",
         price: 4000, emoji: "💧",
         img: "air-mineral.jpg",
         options: ["DINGIN", "TIDAK DINGIN"]
       },
       {
-        id: 13, cat: "🥤 MINUMAN", name: "ES BATU", desc: "Tambahan es batu",
+        id: 11, cat: "🥤 MINUMAN", name: "AIR MINERAL 3000", desc: "Botol 600ml",
+        price: 3000, emoji: "💧",
+        img: "air-mineral.jpg",
+        options: ["DINGIN", "TIDAK DINGIN"]
+      },
+      {
+        id: 12, cat: "🥤 MINUMAN", name: "ES BATU", desc: "Tambahan es batu",
         price: 1000, emoji: "🧊",
         img: "batu-es.jpg",
         options: ["Batu es"]
@@ -425,7 +429,6 @@
     let activeProduct = null;
     let modalQty = 1;
     let selectedOptionModal = "";
-    let fotoRumahBase64 = "";
     let audioContext = null;
 
     function getAudioContext() {
@@ -474,25 +477,6 @@
       playTone(180, 0.16, "sawtooth", 0.05, 0.10);
     }
 
-    function previewFotoRumah(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          fotoRumahBase64 = e.target.result;
-          document.getElementById('img-preview').src = fotoRumahBase64;
-          document.getElementById('preview-container').style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function hapusFotoRumah() {
-      fotoRumahBase64 = "";
-      document.getElementById('input-foto-rumah').value = "";
-      document.getElementById('preview-container').style.display = 'none';
-    }
-
     function init() {
       const sekarang = new Date();
       const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -539,7 +523,7 @@
 
           html += `
             <div class="card-item">
-              <img src="${item.img}" alt="${item.name}" onclick="openProductModal(${item.id})">
+              <img src="${item.img}" alt="${item.name}" onclick="openProductModal(${item.id})" onerror="this.src='https://via.placeholder.com/150?text=Seblak+Marni'">
               <div>
                 <div class="item-title" onclick="openProductModal(${item.id})">${item.name}</div>
                 <div class="item-desc">${item.desc}</div>
@@ -764,30 +748,76 @@
         tabOnline.classList.add('active-tab');
         tabKasir.classList.remove('active-tab');
         sectionQris.style.display = 'block';
-        btnProses.innerText = 'Bayar QRIS';
+        btnProses.innerText = 'Bayar';
       } else {
         tabKasir.classList.add('active-tab');
         tabOnline.classList.remove('active-tab');
         sectionQris.style.display = 'none';
-        btnProses.innerText = 'Pesan Antar (COD)';
+        btnProses.innerText = 'Bayar';
       }
       validasiTombolBayar();
+    }
+
+    // Fungsi Validasi Format Nomor HP Indonesia (+62 / 08)
+    function cekNomorHpValid(noHp) {
+      const cleaned = noHp.trim().replace(/[\s-]/g, '');
+      const regexId = /^(\+62|62|0)8[1-9][0-9]{7,10}$/;
+      return regexId.test(cleaned);
+    }
+
+    function validasiFormatHp() {
+      const hpVal = document.getElementById('input-hp').value;
+      const errorEl = document.getElementById('error-hp');
+      
+      if (hpVal.trim() === "") {
+        errorEl.style.display = 'none';
+        return false;
+      }
+
+      if (!cekNomorHpValid(hpVal)) {
+        errorEl.style.display = 'block';
+        return false;
+      } else {
+        errorEl.style.display = 'none';
+        return true;
+      }
     }
 
     function validasiTombolBayar() {
       const btnProses = document.getElementById('btn-proses');
       const checkSyarat = document.getElementById('check-syarat').checked;
-      btnProses.disabled = (metodePembayaranPilihan === 'online') ? !checkSyarat : false;
+      const hpVal = document.getElementById('input-hp').value;
+      
+      const isHpValid = cekNomorHpValid(hpVal);
+      
+      if (metodePembayaranPilihan === 'online') {
+        btnProses.disabled = !(checkSyarat && isHpValid);
+      } else {
+        btnProses.disabled = !isHpValid;
+      }
     }
 
     function prosesSesuaiMetode() {
       const nama = document.getElementById('input-nama').value.trim();
-      const wa = document.getElementById('input-wa').value.trim();
+      const hp = document.getElementById('input-hp').value.trim();
       const alamat = document.getElementById('input-alamat').value.trim();
 
-      if (!nama || !wa || !alamat) {
+      if (!nama) {
         playErrorSound();
-        alert("Harap isi Nama, No. WhatsApp, dan Alamat Lengkap terlebih dahulu!");
+        alert("Harap isi Nama Penerima terlebih dahulu!");
+        document.getElementById('input-nama').focus();
+        return;
+      }
+      if (!hp || !cekNomorHpValid(hp)) {
+        playErrorSound();
+        alert("Nomor WhatsApp / HP tidak valid! Pastikan menggunakan format nomor Indonesia yang benar (contoh: +628... atau 08...).");
+        document.getElementById('input-hp').focus();
+        return;
+      }
+      if (!alamat) {
+        playErrorSound();
+        alert("Harap isi Alamat Lengkap Tujuan terlebih dahulu!");
+        document.getElementById('input-alamat').focus();
         return;
       }
 
@@ -862,25 +892,33 @@
     function kirimKeWhatsApp(metodeText) {
       playPaymentSound();
       
-      const nama = document.getElementById('input-nama').value.trim();
-      const wa = document.getElementById('input-wa').value.trim();
-      const alamat = document.getElementById('input-alamat').value.trim();
-      const catatanPenerima = document.getElementById('input-catatan').value.trim();
+      const nama = document.getElementById('input-nama').value;
+      let hp = document.getElementById('input-hp').value.trim();
+      const alamat = document.getElementById('input-alamat').value;
+      const gmaps = document.getElementById('input-gmaps').value.trim();
+      const catatanPenerima = document.getElementById('input-catatan').value;
       const { total } = hitungTotal();
+
+      if (hp.startsWith('08')) {
+        hp = '+62' + hp.substring(1);
+      } else if (hp.startsWith('62')) {
+        hp = '+' + hp;
+      }
 
       let teksPesanan = `*PESANAN PESAN ANTAR - SEBLAK TEH MARNI* 🛵\n\n`;
       teksPesanan += `👤 *Nama:* ${nama}\n`;
-      teksPesanan += `📞 *No. HP/WA:* ${wa}\n`;
+      teksPesanan += `📞 *No. HP/WA:* ${hp}\n`;
       teksPesanan += `📍 *Alamat Tujuan:* ${alamat}\n`;
       
-      if (fotoRumahBase64 !== "") {
-        teksPesanan += `📸 *Patokan Rumah:* [Pelanggan melampirkan foto patokan rumah di chat ini]\n`;
+      if (gmaps !== "") {
+        teksPesanan += `🗺️ *Google Maps:* ${gmaps}\n`;
       }
       
+      teksPesanan += `📷 *Patokan Rumah:* [Pelanggan melampirkan foto patokan rumah di chat ini]\n`;
       teksPesanan += `💳 *Pembayaran:* ${metodeText}\n`;
       
-      if (catatanPenerima !== "") {
-        teksPesanan += `📝 *Catatan Tambahan:* ${catatanPenerima}\n`;
+      if (catatanPenerima.trim() !== "") {
+        teksPesanan += `📝 *Catatan:* ${cataturPenerima || catatanPenerima}\n`;
       }
       
       teksPesanan += `\n*--- DETAIL PESANAN ---*\n`;
@@ -896,12 +934,6 @@
 
       const urlWA = `https://wa.me/${NOMOR_WA_KASIR}?text=${encodeURIComponent(teksPesanan)}`;
       window.open(urlWA, '_blank');
-
-      if (fotoRumahBase64 !== "") {
-        setTimeout(() => {
-          alert("Jangan lupa kirimkan foto patokan rumah yang sudah kamu pilih di chat WhatsApp ya, Kak!");
-        }, 1000);
-      }
     }
 
     init();
