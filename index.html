@@ -53,9 +53,12 @@
     .form-group textarea { resize: vertical; min-height: 60px; }
     .error-msg { font-size: 11px; color: #e91e63; margin-top: 3px; display: none; }
 
-    .payment-tabs { display: flex; gap: 10px; margin: 10px 15px; }
-    .tab-btn { flex: 1; padding: 12px 8px; border: 1px solid #e0e0e0; border-radius: 10px; background: #fff; text-align: center; font-weight: bold; font-size: 13px; cursor: pointer; color: #666; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .tab-btn.active-tab { border-color: var(--primary); color: var(--primary); background-color: #fff0f5; }
+    /* Gaya Card Pilihan Tipe Pemesanan */
+    .order-type-container { display: flex; gap: 10px; margin-bottom: 15px; padding: 0 15px; }
+    .order-type-card { flex: 1; background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+    .order-type-card:hover { background: #f1f1f1; }
+    .order-type-card.active { background: #fff0f5; border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 8px rgba(233,30,99,0.15); }
+    .order-type-card h4 { margin: 0; font-size: 14px; font-weight: bold; }
 
     .qris-box { border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin: 15px; background: #fff; }
     .checkbox-agree { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 12px; color: #555; }
@@ -98,8 +101,6 @@
 
     .modal-content-general { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 25px 20px; text-align: center; box-sizing: border-box; }
     .modal-btn-group { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-modal-cek { flex: 1; padding: 12px; border: 1px solid var(--primary); background: #fff; color: var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-modal-bayar { flex: 1; padding: 12px; border: none; background: var(--primary); color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-modal-cancel { flex: 1; padding: 12px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-modal-continue { flex: 1; padding: 12px; border: none; background: var(--primary); color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
@@ -122,7 +123,8 @@
         <span id="badge-toko" class="badge-status badge-buka">BUKA</span>
       </div>
       <div class="store-status">
-        <span>Pesan antar jam 11.00-15.00 Sore.</span>
+        <div style="font-size: 12px; color:#28a745; font-weight: 600; margin-bottom: 4px;" id="text-tanggal-hari-ini"></div>
+      Buka setiap hari jam 11.00 - 15.00 sore.<br>Bisa diantar atau pesan dulu untuk diambil
         <div style="font-size: 12px; color: #888;" id="text-tanggal-hari-ini"></div>
       </div>
     </div>
@@ -169,7 +171,26 @@
       <div></div>
     </div>
 
-    <div class="form-group" style="margin-top:15px;">
+    <!-- PILIHAN TIPE PEMESANAN (CARD BUTTONS) -->
+    <div style="margin-top:15px;">
+      <div style="padding: 0 15px 6px 15px; font-size: 12px; color: #666; font-weight: bold;">Pilih Tipe Pemesanan*</div>
+      <div class="order-type-container">
+        <div id="cardPesanDulu" class="order-type-card" onclick="pilihTipePemesanan('pesan_dulu')">
+          <h4>Pesan Dulu</h4>
+        </div>
+        <div id="cardDelivery" class="order-type-card active" onclick="pilihTipePemesanan('delivery')">
+          <h4>Delivery</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM DINAMIS: PESAN DULU (WAKTU AMBIL) -->
+    <div id="sectionPesanDulu" class="form-group" style="display: none;">
+      <label>Tanggal & Waktu Pengambilan*</label>
+      <input type="datetime-local" id="input-waktu-ambil" onchange="validasiTombolBayar()">
+    </div>
+
+    <div class="form-group">
       <label>Nama Penerima*</label>
       <input type="text" id="input-nama" placeholder="Masukkan Nama Anda">
     </div>
@@ -180,8 +201,8 @@
       <div id="error-hp" class="error-msg">Format nomor WhatsApp tidak valid (Gunakan format Indonesia +62 atau 08, min 10 digit).</div>
     </div>
 
-    <!-- TAMBAHAN PILIHAN WILAYAH ANTAR (WAJIB DIISI) -->
-    <div class="form-group">
+    <!-- FORM DINAMIS: DELIVERY (PILIH WILAYAH) -->
+    <div class="form-group" id="sectionDelivery">
       <label>Pilih Wilayah Antar (Wajib Diisi)*</label>
       <select id="input-wilayah" onchange="validasiTombolBayar()">
         <option value="">-- Pilih Wilayah Tujuan --</option>
@@ -197,14 +218,17 @@
       </select>
     </div>
 
-    <div class="form-group">
-      <label>Alamat Lengkap / Patokan Rumah*</label>
-      <textarea id="input-alamat" placeholder="Nama jalan, RT/RW..."></textarea>
-    </div>
+    <!-- FORM ALAMAT & GMAPS AKAN DISEMBUNYIKAN KETIKA PILIH PESAN DULU -->
+    <div id="sectionAlamatMaps">
+      <div class="form-group">
+        <label id="label-alamat">Alamat Lengkap / Patokan Rumah*</label>
+        <textarea id="input-alamat" placeholder="Nama jalan, RT/RW..."></textarea>
+      </div>
 
-    <div class="form-group">
-      <label>Link Google Maps / Titik Lokasi (Opsional)</label>
-      <input type="url" id="input-gmaps" placeholder="Tempel link Google Maps (Share Location) di sini...">
+      <div class="form-group">
+        <label>Link Google Maps / Titik Lokasi (Opsional)</label>
+        <input type="url" id="input-gmaps" placeholder="Tempel link Google Maps (Share Location) di sini...">
+      </div>
     </div>
 
     <div class="form-group">
@@ -214,19 +238,12 @@
 
     <h4 style="margin: 15px 15px 8px 15px; font-size: 14px;">Metode Pembayaran</h4>
     
-    <div class="payment-tabs">
-      <div id="tab-online" class="tab-btn active-tab" onclick="pilihTab('online')">💳 Pembayaran QRIS</div>
-      <div id="tab-kasir" class="tab-btn" onclick="pilihTab('kasir')">💵 COD / Bayar di Tempat</div>
-    </div>
-
-    <div id="section-qris">
-      <div class="qris-box">
-        <b style="font-size:14px;">Pembayaran via QRIS Online</b>
-        <label class="checkbox-agree">
-          <input type="checkbox" id="check-syarat" onchange="validasiTombolBayar()">
-          <span>Saya setuju dengan pesanan dan siap melakukan pembayaran via QRIS.</span>
-        </label>
-      </div>
+    <div class="qris-box">
+      <b style="font-size:14px;">Pembayaran via QRIS Online</b>
+      <label class="checkbox-agree">
+        <input type="checkbox" id="check-syarat" onchange="validasiTombolBayar()">
+        <span>Saya setuju dengan pesanan dan siap melakukan pembayaran via QRIS.</span>
+      </label>
     </div>
 
     <div class="bottom-bar">
@@ -329,8 +346,8 @@
   <div id="modal-batal" class="modal-overlay">
     <div class="modal-content-general">
       <div style="font-size: 40px; margin-bottom: 10px;">❓</div>
-      <h3 style="margin: 0 0 10px 0;">Batal gunakan QRIS?</h3>
-      <p style="font-size: 13px; color: #666; margin: 0;">Anda dapat mengganti ke metode pembayaran COD.</p>
+      <h3 style="margin: 0 0 10px 0;">Batal proses pembayaran QRIS?</h3>
+      <p style="font-size: 13px; color: #666; margin: 0;">Anda dapat kembali untuk mengubah data pesanan.</p>
       
       <div class="modal-btn-group">
         <button class="btn-modal-cancel" onclick="konfirmasiBatal()">Kembali</button>
@@ -339,19 +356,9 @@
     </div>
   </div>
 
-  <!-- MODAL KONFIRMASI BAYAR COD -->
-  <div id="modal-kasir" class="modal-overlay">
-    <div class="modal-content-general">
-      <h3 style="margin: 0 0 15px 0; font-size: 16px;">Kirim pesanan ke WhatsApp sekarang?</h3>
-      <div class="modal-btn-group">
-        <button class="btn-modal-cek" onclick="tutupModalKasir()">Cek Lagi</button>
-        <button class="btn-modal-bayar" onclick="lanjutKeWhatsappKasir()">Pesan Sekarang</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const NOMOR_WA_KASIR = "6283136661801";
+    let tipePemesananAktif = "delivery"; // Default Delivery
 
     const MENU = [
       {
@@ -441,7 +448,6 @@
     ];
 
     let cart = [];
-    let metodePembayaranPilihan = "online";
     let countdownInterval = null;
     let activeProduct = null;
     let modalQty = 1;
@@ -505,6 +511,35 @@
 
       renderMenus();
       renderData();
+      pilihTipePemesanan('delivery'); // Set default awal delivery
+    }
+
+    function pilihTipePemesanan(tipe) {
+      playAddSound();
+      tipePemesananAktif = tipe;
+
+      const cardPesanDulu = document.getElementById('cardPesanDulu');
+      const cardDelivery = document.getElementById('cardDelivery');
+      const sectionPesanDulu = document.getElementById('sectionPesanDulu');
+      const sectionDelivery = document.getElementById('sectionDelivery');
+      const sectionAlamatMaps = document.getElementById('sectionAlamatMaps');
+
+      cardPesanDulu.classList.remove('active');
+      cardDelivery.classList.remove('active');
+      sectionPesanDulu.style.display = 'none';
+      sectionDelivery.style.display = 'none';
+      sectionAlamatMaps.style.display = 'block';
+
+      if (tipe === 'pesan_dulu') {
+        cardPesanDulu.classList.add('active');
+        sectionPesanDulu.style.display = 'block';
+        sectionAlamatMaps.style.display = 'none'; // Sembunyikan alamat & gmaps sesuai permintaan
+      } else {
+        cardDelivery.classList.add('active');
+        sectionDelivery.style.display = 'block';
+        sectionAlamatMaps.style.display = 'block';
+      }
+      validasiTombolBayar();
     }
 
     function renderMenus() {
@@ -753,28 +788,6 @@
       else hentikanTimer();
     }
 
-    function pilihTab(jenis) {
-      playAddSound();
-      metodePembayaranPilihan = jenis;
-      const tabOnline = document.getElementById('tab-online');
-      const tabKasir = document.getElementById('tab-kasir');
-      const sectionQris = document.getElementById('section-qris');
-      const btnProses = document.getElementById('btn-proses');
-
-      if (jenis === 'online') {
-        tabOnline.classList.add('active-tab');
-        tabKasir.classList.remove('active-tab');
-        sectionQris.style.display = 'block';
-        btnProses.innerText = 'Bayar';
-      } else {
-        tabKasir.classList.add('active-tab');
-        tabOnline.classList.remove('active-tab');
-        sectionQris.style.display = 'none';
-        btnProses.innerText = 'Bayar';
-      }
-      validasiTombolBayar();
-    }
-
     function cekNomorHpValid(noHp) {
       const cleaned = noHp.trim().replace(/[\s-]/g, '');
       const regexId = /^(\+62|62|0)8[1-9][0-9]{7,10}$/;
@@ -806,23 +819,48 @@
       const btnProses = document.getElementById('btn-proses');
       const checkSyarat = document.getElementById('check-syarat').checked;
       const hpVal = document.getElementById('input-hp').value;
-      const wilayahVal = document.getElementById('input-wilayah').value;
-      
       const isHpValid = cekNomorHpValid(hpVal);
-      const isWilayahValid = wilayahVal !== "";
       
-      if (metodePembayaranPilihan === 'online') {
-        btnProses.disabled = !(checkSyarat && isHpValid && isWilayahValid);
+      let syaratTambahan = true;
+      if (tipePemesananAktif === 'delivery') {
+        const wilayahVal = document.getElementById('input-wilayah').value;
+        syaratTambahan = (wilayahVal !== "");
       } else {
-        btnProses.disabled = !(isHpValid && isWilayahValid);
+        const waktuVal = document.getElementById('input-waktu-ambil').value;
+        syaratTambahan = (waktuVal !== "");
       }
+      
+      btnProses.disabled = !(checkSyarat && isHpValid && syaratTambahan);
     }
 
     function prosesSesuaiMetode() {
       const nama = document.getElementById('input-nama').value.trim();
       const hp = document.getElementById('input-hp').value.trim();
-      const wilayah = document.getElementById('input-wilayah').value;
       const alamat = document.getElementById('input-alamat').value.trim();
+
+      if (tipePemesananAktif === 'pesan_dulu') {
+        const waktuAmbil = document.getElementById('input-waktu-ambil').value;
+        if (!waktuAmbil) {
+          playErrorSound();
+          alert("Harap tentukan tanggal dan waktu pengambilan pesanan terlebih dahulu!");
+          document.getElementById('input-waktu-ambil').focus();
+          return;
+        }
+      } else {
+        const wilayah = document.getElementById('input-wilayah').value;
+        if (!wilayah) {
+          playErrorSound();
+          alert("Harap pilih Wilayah Antar terlebih dahulu!");
+          document.getElementById('input-wilayah').focus();
+          return;
+        }
+        if (!alamat) {
+          playErrorSound();
+          alert("Harap isi Alamat Lengkap Tujuan terlebih dahulu!");
+          document.getElementById('input-alamat').focus();
+          return;
+        }
+      }
 
       if (!nama) {
         playErrorSound();
@@ -832,36 +870,12 @@
       }
       if (!hp || !cekNomorHpValid(hp)) {
         playErrorSound();
-        alert("Nomor WhatsApp / HP tidak valid! Pastikan menggunakan format nomor Indonesia yang benar (contoh: +628... atau 08...).");
+        alert("Nomor WhatsApp / HP tidak valid! Pastikan menggunakan format nomor Indonesia yang benar.");
         document.getElementById('input-hp').focus();
         return;
       }
-      if (!wilayah) {
-        playErrorSound();
-        alert("Harap pilih Wilayah Antar terlebih dahulu!");
-        document.getElementById('input-wilayah').focus();
-        return;
-      }
-      if (!alamat) {
-        playErrorSound();
-        alert("Harap isi Alamat Lengkap Tujuan terlebih dahulu!");
-        document.getElementById('input-alamat').focus();
-        return;
-      }
 
-      if (metodePembayaranPilihan === 'online') {
-        pindahHalaman('hal-qris');
-      } else {
-        bukaModalKasir();
-      }
-    }
-
-    function bukaModalKasir() { document.getElementById('modal-kasir').classList.add('show'); }
-    function tutupModalKasir() { document.getElementById('modal-kasir').classList.remove('show'); }
-
-    function lanjutKeWhatsappKasir() {
-      tutupModalKasir();
-      kirimKeWhatsApp('COD / BAYAR DI TEMPAT');
+      pindahHalaman('hal-qris');
     }
 
     function gantiTabHp(tipe) {
@@ -922,7 +936,6 @@
       
       const nama = document.getElementById('input-nama').value;
       let hp = document.getElementById('input-hp').value.trim();
-      const wilayah = document.getElementById('input-wilayah').value;
       const alamat = document.getElementById('input-alamat').value;
       const gmaps = document.getElementById('input-gmaps').value.trim();
       const catatanPenerima = document.getElementById('input-catatan').value;
@@ -934,16 +947,23 @@
         hp = '+' + hp;
       }
 
-      let teksPesanan = `*PESANAN DELIVERY* 🛵\n\n`;
+      let teksPesanan = "";
+      if (tipePemesananAktif === 'pesan_dulu') {
+        const waktuAmbil = document.getElementById('input-waktu-ambil').value;
+        teksPesanan = `*PESANAN PESAN DULU (AMBIL SENDIRI)* 🥡\n\n`;
+        teksPesanan += `🕒 *Waktu Ambil:* ${waktuAmbil}\n`;
+      } else {
+        const wilayah = document.getElementById('input-wilayah').value;
+        teksPesanan = `*PESANAN DELIVERY* 🛵\n\n`;
+        teksPesanan += `📍 *Wilayah Antar:* ${wilayah}\n`;
+        teksPesanan += `🏠 *Alamat Tujuan:* ${alamat}\n`;
+        if (gmaps !== "") {
+          teksPesanan += `🗺️ *Google Maps:* ${gmaps}\n`;
+        }
+      }
+
       teksPesanan += `👤 *Nama:* ${nama}\n`;
       teksPesanan += `📞 *No. HP/WA:* ${hp}\n`;
-      teksPesanan += `📍 *Wilayah Antar:* ${wilayah}\n`;
-      teksPesanan += `🏠 *Alamat Tujuan:* ${alamat}\n`;
-      
-      if (gmaps !== "") {
-        teksPesanan += `🗺️ *Google Maps:* ${gmaps}\n`;
-      }
-      
       teksPesanan += `💳 *Pembayaran:* ${metodeText}\n`;
       
       if (catatanPenerima.trim() !== "") {
