@@ -19,7 +19,7 @@
     .store-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .store-title { font-size: 20px; font-weight: 800; margin: 0; color: #111; }
     
-    .store-status { font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 2px; }
+    .store-status { font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 4px; }
     .badge-status { font-weight: bold; padding: 3px 10px; border-radius: 6px; font-size: 11px; display: inline-block; text-align: center; }
     .badge-buka { background: #e8f5e9; color: #2e7d32; }
     
@@ -53,12 +53,19 @@
     .form-group textarea { resize: vertical; min-height: 60px; }
     .error-msg { font-size: 11px; color: #e91e63; margin-top: 3px; display: none; }
 
-    /* Gaya Card Pilihan Tipe Pemesanan */
-    .order-type-container { display: flex; gap: 10px; margin-bottom: 15px; padding: 0 15px; }
-    .order-type-card { flex: 1; background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; }
-    .order-type-card:hover { background: #f1f1f1; }
-    .order-type-card.active { background: #fff0f5; border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 8px rgba(233,30,99,0.15); }
-    .order-type-card h4 { margin: 0; font-size: 14px; font-weight: bold; }
+    .order-type-container { display: flex; gap: 12px; margin-bottom: 15px; padding: 0 15px; }
+    .order-type-card { flex: 1; background: #fff; border: 2px solid #e0e0e0; border-radius: 14px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .order-type-card:hover { border-color: #bbb; }
+    .order-type-card.active { background: #fff0f5; border-color: var(--primary); color: var(--primary); box-shadow: 0 4px 12px rgba(233,30,99,0.15); }
+    .order-type-card h4 { margin: 8px 0 2px 0; font-size: 15px; font-weight: bold; color: #111; }
+    .order-type-card.active h4 { color: var(--primary); }
+    .order-type-card p { font-size: 11px; color: #666; margin: 0; }
+    .order-type-card.active p { color: #d81b60; }
+
+    .selected-type-box { display: flex; justify-content: space-between; align-items: center; background: #fff0f5; border: 1px solid var(--primary); border-radius: 12px; padding: 12px 15px; margin: 15px 15px 5px 15px; }
+    .selected-type-box .info span { font-size: 11px; color: #666; display: block; }
+    .selected-type-box .info b { font-size: 14px; color: var(--primary); }
+    .btn-ubah-tipe { background: none; border: none; color: var(--primary); font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: underline; }
 
     .qris-box { border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin: 15px; background: #fff; }
     .checkbox-agree { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 12px; color: #555; }
@@ -105,14 +112,14 @@
     .btn-modal-continue { flex: 1; padding: 12px; border: none; background: var(--primary); color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
     .bottom-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; padding: 12px 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 10; }
-    .btn-main { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-main { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
     .btn-main:disabled { background: #cccccc !important; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-  <!-- HALAMAN 1: MENU PEMESANAN -->
-  <div id="hal-menu" class="page active">
+  <!-- HALAMAN UTAMA / PERTAMA: PILIH TIPE PEMESANAN -->
+  <div id="hal-tipe-pemesanan" class="page active">
     <div class="banner-container">
       <img src="sampul.jpg" alt="Sampul Seblak Teh Marni">
     </div>
@@ -123,21 +130,52 @@
         <span id="badge-toko" class="badge-status badge-buka">BUKA</span>
       </div>
       <div class="store-status">
-        <div style="font-size: 12px; color:#28a745; font-weight: 600; margin-bottom: 4px;" id="text-tanggal-hari-ini"></div>
-      Menerima pesanan jam 11.00 - 20.00 Malam<br>merima deliver jam 13.00 - 15.00 Sore<br>Bisa diantar atau pesan dulu untuk diambil.
-        <div style="font-size: 12px; color: #888;" id="text-tanggal-hari-ini"></div>
+        <div style="font-size: 12px; color:#28a745; font-weight: 600;" id="text-tanggal-hari-ini"></div>
+        <span>jam pesan dulu 11.00 - 20.00 Malam</span>
+        <span>jam delivery 13.00 - 15.00 Sore</span>
+        
       </div>
     </div>
 
+    <div style="padding: 0 15px;">
+      <div style="font-size: 14px; font-weight: bold; color: #111; margin-bottom: 10px;">Silakan Pilih Tipe Pemesanan:</div>
+      <div class="order-type-container" style="padding: 0;">
+        <div id="cardPesanDulu" class="order-type-card active" onclick="pilihTipePemesanan('pesan_dulu')">
+          <div style="font-size: 28px;">🥡</div>
+          <h4>Pesan Dulu</h4>
+          <p>Ambil Sendiri ke Toko</p>
+        </div>
+        <div id="cardDelivery" class="order-type-card" onclick="pilihTipePemesanan('delivery')">
+          <div style="font-size: 28px;">🛵</div>
+          <h4>Delivery</h4>
+          <p>Diantar ke Rumah</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn-main" onclick="pindahHalaman('hal-menu')">Lanjutkan ke Menu &rarr;</button>
+    </div>
+  </div>
+
+  <!-- HALAMAN 2: MENU PEMESANAN -->
+  <div id="hal-menu" class="page">
+    <div class="header">
+      <button class="back-btn" onclick="pindahHalaman('hal-tipe-pemesanan')">←</button>
+      <h3 style="margin:0;">Daftar Menu</h3>
+      <div></div>
+    </div>
+
+    <div style="height: 15px;"></div>
     <div id="menuContainer"></div>
 
     <div class="bottom-bar">
       <div>Total: <b id="total-hal1" style="color:var(--primary)">Rp 0</b></div>
-      <button id="btn-checkout-main" class="btn-main" onclick="pindahHalaman('hal-pesanan')">CHECK OUT (<span id="count-hal1">0</span>)</button>
+      <button id="btn-checkout-main" class="btn-main" style="width: auto;" onclick="pindahHalaman('hal-pesanan')">CHECK OUT (<span id="count-hal1">0</span>)</button>
     </div>
   </div>
 
-  <!-- HALAMAN 2: LIHAT PESANAN -->
+  <!-- HALAMAN 3: LIHAT PESANAN -->
   <div id="hal-pesanan" class="page">
     <div class="header">
       <button class="back-btn" onclick="pindahHalaman('hal-menu')">←</button>
@@ -159,11 +197,11 @@
 
     <div class="bottom-bar">
       <div>Total: <b id="total-hal2" style="color:var(--primary)">Rp 0</b></div>
-      <button class="btn-main" onclick="pindahHalaman('hal-pembayaran')">Lanjut Pembayaran</button>
+      <button class="btn-main" style="width: auto;" onclick="pindahHalaman('hal-pembayaran')">Lanjut Pembayaran</button>
     </div>
   </div>
 
-  <!-- HALAMAN 3: PEMBAYARAN & INFORMASI PEMESAN -->
+  <!-- HALAMAN 4: PEMBAYARAN & INFORMASI PEMESAN -->
   <div id="hal-pembayaran" class="page">
     <div class="header">
       <button class="back-btn" onclick="pindahHalaman('hal-pesanan')">←</button>
@@ -171,26 +209,22 @@
       <div></div>
     </div>
 
-    <!-- PILIHAN TIPE PEMESANAN (CARD BUTTONS) -->
-    <div style="margin-top:15px;">
-      <div style="padding: 0 15px 6px 15px; font-size: 12px; color: #666; font-weight: bold;">Pilih Tipe Pemesanan*</div>
-      <div class="order-type-container">
-        <div id="cardPesanDulu" class="order-type-card" onclick="pilihTipePemesanan('pesan_dulu')">
-          <h4>Pesan Dulu</h4>
-        </div>
-        <div id="cardDelivery" class="order-type-card active" onclick="pilihTipePemesanan('delivery')">
-          <h4>Delivery</h4>
-        </div>
+    <!-- KOTAK INFORMASI TIPE PEMESANAN DENGAN TOMBOL UBAH -->
+    <div class="selected-type-box">
+      <div class="info">
+        <span>Tipe Pemesanan:</span>
+        <b id="text-tipe-terpilih">Pesan Dulu (Ambil Sendiri)</b>
       </div>
+      <button class="btn-ubah-tipe" onclick="pindahHalaman('hal-tipe-pemesanan')">Ubah</button>
     </div>
 
-    <!-- FORM DINAMIS: PESAN DULU (WAKTU AMBIL) -->
-    <div id="sectionPesanDulu" class="form-group" style="display: none;">
+    <!-- FORM DINAMIS: PESAN DULU -->
+    <div id="sectionPesanDulu" class="form-group" style="display: none; margin-top: 15px;">
       <label>Tanggal & Waktu Pengambilan*</label>
-      <input type="datetime-local" id="input-waktu-ambil" onchange="validasiTombolBayar()">
+      <input type="datetime-local" id="input-waktu-ambil" onchange="validasiTombolBayar()" onclick="bukaPilihWaktu(this)" ontouchstart="bukaPilihWaktu(this)">
     </div>
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
       <label>Nama Penerima*</label>
       <input type="text" id="input-nama" placeholder="Masukkan Nama Anda">
     </div>
@@ -201,7 +235,7 @@
       <div id="error-hp" class="error-msg">Format nomor WhatsApp tidak valid (Gunakan format Indonesia +62 atau 08, min 10 digit).</div>
     </div>
 
-    <!-- FORM DINAMIS: DELIVERY (PILIH WILAYAH) -->
+    <!-- FORM DINAMIS: DELIVERY -->
     <div class="form-group" id="sectionDelivery">
       <label>Pilih Wilayah Antar (Wajib Diisi)*</label>
       <select id="input-wilayah" onchange="validasiTombolBayar()">
@@ -218,7 +252,6 @@
       </select>
     </div>
 
-    <!-- FORM ALAMAT & GMAPS AKAN DISEMBUNYIKAN KETIKA PILIH PESAN DULU -->
     <div id="sectionAlamatMaps">
       <div class="form-group">
         <label id="label-alamat">Alamat Lengkap / Patokan Rumah*</label>
@@ -248,11 +281,11 @@
 
     <div class="bottom-bar">
       <div>Total Makanan<br><b id="total-hal3" style="color:#000; font-size:18px;">Rp 0</b></div>
-      <button class="btn-main" id="btn-proses" onclick="prosesSesuaiMetode()">Bayar</button>
+      <button class="btn-main" style="width: auto;" id="btn-proses" onclick="prosesSesuaiMetode()">Bayar</button>
     </div>
   </div>
 
-  <!-- HALAMAN 4: SCAN QRIS -->
+  <!-- HALAMAN 5: SCAN QRIS -->
   <div id="hal-qris" class="page">
     <div class="header">
       <button class="back-btn" onclick="bukaModalBatal()">←</button>
@@ -358,7 +391,7 @@
 
   <script>
     const NOMOR_WA_KASIR = "6283136661801";
-    let tipePemesananAktif = "delivery"; // Default Delivery
+    let tipePemesananAktif = "pesan_dulu";
 
     const MENU = [
       {
@@ -500,6 +533,15 @@
       playTone(180, 0.16, "sawtooth", 0.05, 0.10);
     }
 
+    // Fungsi helper agar input waktu langsung membuka picker/kalender bawaan HP
+    function bukaPilihWaktu(element) {
+      try {
+        if (typeof element.showPicker === 'function') {
+          element.showPicker();
+        }
+      } catch (e) {}
+    }
+
     function init() {
       const sekarang = new Date();
       const opsiTanggal = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -511,7 +553,7 @@
 
       renderMenus();
       renderData();
-      pilihTipePemesanan('delivery'); // Set default awal delivery
+      pilihTipePemesanan('pesan_dulu');
     }
 
     function pilihTipePemesanan(tipe) {
@@ -523,21 +565,24 @@
       const sectionPesanDulu = document.getElementById('sectionPesanDulu');
       const sectionDelivery = document.getElementById('sectionDelivery');
       const sectionAlamatMaps = document.getElementById('sectionAlamatMaps');
+      const textTipeTerpilih = document.getElementById('text-tipe-terpilih');
 
       cardPesanDulu.classList.remove('active');
       cardDelivery.classList.remove('active');
-      sectionPesanDulu.style.display = 'none';
-      sectionDelivery.style.display = 'none';
-      sectionAlamatMaps.style.display = 'block';
+      if(sectionPesanDulu) sectionPesanDulu.style.display = 'none';
+      if(sectionDelivery) sectionDelivery.style.display = 'none';
+      if(sectionAlamatMaps) sectionAlamatMaps.style.display = 'block';
 
       if (tipe === 'pesan_dulu') {
         cardPesanDulu.classList.add('active');
-        sectionPesanDulu.style.display = 'block';
-        sectionAlamatMaps.style.display = 'none'; // Sembunyikan alamat & gmaps sesuai permintaan
+        if(sectionPesanDulu) sectionPesanDulu.style.display = 'block';
+        if(sectionAlamatMaps) sectionAlamatMaps.style.display = 'none';
+        if(textTipeTerpilih) textTipeTerpilih.innerText = "Pesan Dulu (Ambil Sendiri)";
       } else {
         cardDelivery.classList.add('active');
-        sectionDelivery.style.display = 'block';
-        sectionAlamatMaps.style.display = 'block';
+        if(sectionDelivery) sectionDelivery.style.display = 'block';
+        if(sectionAlamatMaps) sectionAlamatMaps.style.display = 'block';
+        if(textTipeTerpilih) textTipeTerpilih.innerText = "Delivery (Diantar ke Rumah)";
       }
       validasiTombolBayar();
     }
@@ -737,7 +782,7 @@
       document.getElementById('count-hal1').innerText = count;
 
       const btnCheckoutMain = document.getElementById('btn-checkout-main');
-      btnCheckoutMain.disabled = (count === 0);
+      if(btnCheckoutMain) btnCheckoutMain.disabled = (count === 0);
 
       const container = document.getElementById('container-pesanan');
       if (cart.length === 0) {
@@ -775,7 +820,7 @@
     function pindahHalaman(idHalaman) {
       playAddSound();
       const { count } = hitungTotal();
-      if (idHalaman !== 'hal-menu' && count === 0) {
+      if (idHalaman === 'hal-pesanan' && count === 0) {
         playErrorSound();
         alert("Silakan pilih minimal satu menu terlebih dahulu!");
         return;
@@ -822,15 +867,15 @@
       const isHpValid = cekNomorHpValid(hpVal);
       
       let syaratTambahan = true;
-      if (tipePemesananAktif === 'delivery') {
-        const wilayahVal = document.getElementById('input-wilayah').value;
-        syaratTambahan = (wilayahVal !== "");
-      } else {
+      if (tipePemesananAktif === 'pesan_dulu') {
         const waktuVal = document.getElementById('input-waktu-ambil').value;
         syaratTambahan = (waktuVal !== "");
+      } else {
+        const wilayahVal = document.getElementById('input-wilayah').value;
+        syaratTambahan = (wilayahVal !== "");
       }
       
-      btnProses.disabled = !(checkSyarat && isHpValid && syaratTambahan);
+      if(btnProses) btnProses.disabled = !(checkSyarat && isHpValid && syaratTambahan);
     }
 
     function prosesSesuaiMetode() {
